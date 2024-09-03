@@ -33,26 +33,93 @@ export default class Square
             return null;
 
     }
-    squareBelow(): Square | null
+    below(): Square | null
     {
         if (this.rank === 1) return null;
         return new Square(this.file, this.rank - 1);
     }
-    squareAbove(): Square | null
+    above(): Square | null
     {
         if (this.rank === 8) return null;
         return new Square(this.file, this.rank + 1);
     }
-    squareToTheLeft(): Square | null
+    left(): Square | null
     {
         if (this.file === "a") return null;
         return new Square(String.fromCharCode(this.file.charCodeAt(0) - 1), this.rank);
     }
-    squareToTheRight(): Square | null
+    right(): Square | null
     {
         if (this.file === "h") return null;
         return new Square(String.fromCharCode(this.file.charCodeAt(0) + 1), this.rank);
     }
+    topRight(): Square | null | undefined
+    {
+        return this.right()?.above();
+    }
+    topLeft(): Square | null | undefined
+    {
+        return this.left()?.above();
+    }
+    bottomRight(): Square | null | undefined
+    {
+        return this.right()?.below();
+    }
+    bottomLeft(): Square | null | undefined
+    {
+        return this.left()?.below();
+    }
+
+    allOnSameFile(): Square[]
+    {
+        let retArr: Square[] = [];
+        for (let i = 1; i <= 8; i++)
+        {
+            if (i != this.rank)
+            {
+                retArr.push(new Square(this.file, i));
+            }
+        }
+        return retArr;
+    }
+    allOnSameRank(): Square[]
+    {
+        let retArr: Square[] = [];
+        for (let i = "a".charCodeAt(0); i <= "h".charCodeAt(0); i++)
+        {
+            if (i != this.file.charCodeAt(0))
+            {
+                retArr.push(new Square(String.fromCharCode(i), this.rank));
+            }
+        }
+        return retArr;
+    }
+    allDiagonal(): Square[]
+    {
+        let retArr: Square[] = [];
+        let curr = new Square(this.file, this.rank)
+        while (curr.topRight())
+        {
+            retArr.push(curr = curr.topRight()!)
+        }
+        curr = new Square(this.file, this.rank)
+        while (curr.topLeft())
+        {
+            retArr.push(curr = curr.topLeft()!);
+        }
+        curr = new Square(this.file, this.rank)
+        while (curr.bottomLeft())
+        {
+            retArr.push(curr = curr.bottomLeft()!);
+        }
+        curr = new Square(this.file, this.rank)
+        while (curr.bottomRight())
+        {
+            retArr.push(curr = curr.bottomRight()!);
+        }
+        return retArr;
+    }
+
 
     // Performs no integrity checks, make sure a horizontal path is possible before calling
     private static horizontalPath(currSquare: Square, target: Square): Square[]
@@ -60,11 +127,11 @@ export default class Square
         let retArr: Square[] = []
         while (target.file.charCodeAt(0) < currSquare.file.charCodeAt(0) - 1)
         {
-            retArr.push(currSquare = currSquare.squareToTheLeft()!)
+            retArr.push(currSquare = currSquare.left()!)
         }
         while (target.file.charCodeAt(0) > currSquare.file.charCodeAt(0) + 1)
         {
-            retArr.push(currSquare = currSquare.squareToTheRight()!)
+            retArr.push(currSquare = currSquare.right()!)
         }
         return retArr;
     }
@@ -75,11 +142,11 @@ export default class Square
         let retArr: Square[] = []
         while (target.rank < currSquare.rank - 1)
         {
-            retArr.push(currSquare = currSquare.squareBelow()!)
+            retArr.push(currSquare = currSquare.below()!)
         }
         while (target.rank > currSquare.rank + 1)
         {
-            retArr.push(currSquare = currSquare.squareAbove()!)
+            retArr.push(currSquare = currSquare.above()!)
         }
         return retArr;
     }
@@ -89,11 +156,11 @@ export default class Square
         let retArr: Square[] = []
         while (target.rank < currSquare.rank - 1)
         {
-            retArr.push(currSquare = currSquare.squareBelow()!.squareToTheLeft()!)
+            retArr.push(currSquare = currSquare.below()!.left()!)
         }
         while (target.rank > currSquare.rank + 1)
         {
-            retArr.push(currSquare = currSquare.squareAbove()!.squareToTheRight()!)
+            retArr.push(currSquare = currSquare.above()!.right()!)
         }
         return retArr;
     }
@@ -103,11 +170,11 @@ export default class Square
         let retArr: Square[] = []
         while (target.rank < currSquare.rank - 1)
         {
-            retArr.push(currSquare = currSquare.squareBelow()!.squareToTheRight()!)
+            retArr.push(currSquare = currSquare.below()!.right()!)
         }
         while (target.rank > currSquare.rank + 1)
         {
-            retArr.push(currSquare = currSquare.squareAbove()!.squareToTheLeft()!)
+            retArr.push(currSquare = currSquare.above()!.left()!)
         }
         return retArr;
     }
