@@ -8,10 +8,17 @@ import {Castles} from "@/app/game/_gamelogic/castles";
 // If the decision is made to execute this move, the board must properly find and process en passant, castles, promotions, captures etc.
 export class BoardMove
 {
-    piece: Piece;
+
+    // If a move should capture but there is no piece at the target square => en passant
+    constructor(from: Square, to: Square, captures: boolean = false, castle: Castles | undefined = undefined)
+    {
+        this.from = from;
+        this.to = to;
+        this.captures = captures;
+        this.castle = castle;
+    }
     from: Square;
     to: Square;
-    // If a move should capture but there is no piece at the target square => en passant
     captures: boolean = false;
     castle: Castles | undefined = undefined
 }
