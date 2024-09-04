@@ -69,7 +69,7 @@ export class King extends Piece
             retArr.push({to: from.right()!.right()!, castle: Castles.LONG, ...moveBase})
         }
 
-        return retArr.filter(move => !board.moveExposesKing(move));
+        return retArr.filter(board.moveDoesntExposeKing);
     }
 
     private static reachableExistentSquares(from: Square): Square[]
@@ -128,7 +128,7 @@ export class Pawn extends Piece
                 retArr.push({to: rightCaptureSquare, captures: true, ...moveBase})
             }
         }
-        return retArr.filter(move => !board.moveExposesKing(move))
+        return retArr.filter(board.moveDoesntExposeKing)
     }
 
     /**
@@ -175,7 +175,19 @@ export class Knight extends Piece
 {
     possibleMoves(from: Square, color: Color, board: Board): BoardMove[]
     {
+        let retArr: BoardMove[] = [];
+        let moveBase: BoardMove = new BoardMove();
+        moveBase.piece = new Knight();
+        moveBase.from = from;
 
+        let reachable = Knight.reachableExistentSquares(from);
+        retArr = retArr.concat(reachable.filter(square => !board.at(square)) // Moves
+                        .map((square): BoardMove => {return {to: square, ...moveBase}}))
+
+        retArr = retArr.concat(reachable.filter(square => board.at(square)?.color !== color) // Captures
+            .map((square): BoardMove => {return {to: square, captures: true, ...moveBase}}))
+
+        return retArr.filter(board.moveDoesntExposeKing);
     }
 
     private static reachableExistentSquares(from: Square): Square[]

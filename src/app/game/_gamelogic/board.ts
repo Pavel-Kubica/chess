@@ -24,6 +24,11 @@ export default class Board
 
     }
 
+    // Simplifies using this functionality for filtering arrays
+    moveDoesntExposeKing(move: BoardMove): boolean
+    {
+        return !this.moveExposesKing(move);
+    }
     moveExposesKing(move: BoardMove): boolean
     {
 
