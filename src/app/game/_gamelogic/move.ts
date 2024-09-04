@@ -1,7 +1,22 @@
-import Square from "@/app/game/square";
-import {Pawn, Piece} from "@/app/game/piece";
+import Square from "@/app/game/_gamelogic/square";
+import {Piece} from "@/app/game/_gamelogic/piece";
+import {Color} from "@/app/game/_gamelogic/color";
+import {Castles} from "@/app/game/_gamelogic/castles";
 
-export default class Move
+
+// An instance of this class existing ensures that such a move exists and is possible on the board it was made with.
+// If the decision is made to execute this move, the board must properly find and process en passant, castles, promotions, captures etc.
+export class BoardMove
+{
+    piece: Piece;
+    from: Square;
+    to: Square;
+    // If a move should capture but there is no piece at the target square => en passant
+    captures: boolean = false;
+    castle: Castles | undefined = undefined
+}
+
+export class Move
 {
     // In fromString() we might know only rank, or only file, or neither. The type only becomes Square when we know the full square
     from: Square | string | undefined;

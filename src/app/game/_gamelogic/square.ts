@@ -94,7 +94,7 @@ export default class Square
         }
         return retArr;
     }
-    allDiagonal(): Square[]
+    allOnSameDiagonals(): Square[]
     {
         let retArr: Square[] = [];
         let curr = new Square(this.file, this.rank)
