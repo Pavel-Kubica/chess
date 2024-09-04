@@ -65,7 +65,7 @@ export class King extends Piece
             retArr.push(new BoardMove(from, from.left()!.left()!, false, Castles.LONG))
         }
 
-        return retArr.filter(board.moveDoesntExposeKing);
+        return retArr.filter(move => !board.moveExposesKing(move))
     }
 
     private static reachableExistentSquares(from: Square): Square[]
@@ -124,7 +124,7 @@ export class Pawn extends Piece
                 retArr.push(new BoardMove(from, rightCaptureSquare, true))
             }
         }
-        return retArr.filter(board.moveDoesntExposeKing)
+        return retArr.filter(move => !board.moveExposesKing(move))
     }
 
     /**
@@ -175,7 +175,7 @@ export class Knight extends Piece
         retArr = retArr.concat(reachable.filter(square => board.at(square)?.color !== color) // Captures
                         .map(square => new BoardMove(from, square, true)))
 
-        return retArr.filter(board.moveDoesntExposeKing);
+        return retArr.filter(move => !board.moveExposesKing(move))
     }
 
     private static reachableExistentSquares(from: Square): Square[]
@@ -190,7 +190,35 @@ export class Rook extends Piece
 {
     possibleMoves(from: Square, color: Color, board: Board): BoardMove[]
     {
+        let retArr: BoardMove[] = [];
 
+        for (const advancedInDirection of [
+            (square: Square): Square | null => square.above(),
+            (square: Square): Square | null => square.below(),
+            (square: Square): Square | null => square.left(),
+            (square: Square): Square | null => square.right()
+        ])
+        {
+            let curr: Square | null = advancedInDirection(from);
+            // Build a path in the current direction, storing moves along the way
+            while (curr)
+            {
+                if (board.at(curr))
+                { // Encountered a piece
+                    if (board.at(curr)!.color !== color)
+                    { // Piece is of other color, can capture there
+                        retArr.push(new BoardMove(from, curr, true))
+                    }
+                    // In any case cannot move that way any further
+                    break;
+                }
+
+                retArr.push(new BoardMove(from, curr))
+                curr = advancedInDirection(curr)
+            }
+        }
+
+        return retArr.filter(move => !board.moveExposesKing(move))
     }
     private static reachableExistentSquares(from: Square): Square[]
     {
