@@ -130,7 +130,7 @@ export class Pawn extends Piece
     /**
      * @returns [square ahead, doublemove target square, left capture square, right capture square]
      */
-    private static reachableSquares(from: Square, color: Color): [Square | null, Square | null | undefined, Square | null | undefined, Square | null | undefined]
+    private static reachableSquares(from: Square, color: Color): [Square | undefined, Square | undefined, Square | undefined, Square | undefined]
     {
         if (color === Color.WHITE)
         {
@@ -193,13 +193,13 @@ export class Rook extends Piece
         let retArr: BoardMove[] = [];
 
         for (const advancedInDirection of [
-            (square: Square): Square | null => square.above(),
-            (square: Square): Square | null => square.below(),
-            (square: Square): Square | null => square.left(),
-            (square: Square): Square | null => square.right()
+            (square: Square): Square | undefined => square.above(),
+            (square: Square): Square | undefined => square.below(),
+            (square: Square): Square | undefined => square.left(),
+            (square: Square): Square | undefined => square.right()
         ])
         {
-            let curr: Square | null = advancedInDirection(from);
+            let curr: Square | undefined = advancedInDirection(from);
             // Build a path in the current direction, storing moves along the way
             while (curr)
             {

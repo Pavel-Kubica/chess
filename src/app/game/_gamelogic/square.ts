@@ -9,7 +9,7 @@ export default class Square
     file: string;
     rank: number;
 
-    pathTo(target: Square): Square[] | null
+    pathTo(target: Square): Square[] | undefined
     {
         // Straight line paths
         if (target.rank === this.rank)
@@ -30,42 +30,42 @@ export default class Square
             return Square.diagonalTopLeftPath(this, target);
         }
         else
-            return null;
+            return undefined;
 
     }
-    below(): Square | null
+    below(): Square | undefined
     {
-        if (this.rank === 1) return null;
+        if (this.rank === 1) return undefined;
         return new Square(this.file, this.rank - 1);
     }
-    above(): Square | null
+    above(): Square | undefined
     {
-        if (this.rank === 8) return null;
+        if (this.rank === 8) return undefined;
         return new Square(this.file, this.rank + 1);
     }
-    left(): Square | null
+    left(): Square | undefined
     {
-        if (this.file === "a") return null;
+        if (this.file === "a") return undefined;
         return new Square(String.fromCharCode(this.file.charCodeAt(0) - 1), this.rank);
     }
-    right(): Square | null
+    right(): Square | undefined
     {
-        if (this.file === "h") return null;
+        if (this.file === "h") return undefined;
         return new Square(String.fromCharCode(this.file.charCodeAt(0) + 1), this.rank);
     }
-    topRight(): Square | null | undefined
+    topRight(): Square | undefined
     {
         return this.right()?.above();
     }
-    topLeft(): Square | null | undefined
+    topLeft(): Square | undefined
     {
         return this.left()?.above();
     }
-    bottomRight(): Square | null | undefined
+    bottomRight(): Square | undefined
     {
         return this.right()?.below();
     }
-    bottomLeft(): Square | null | undefined
+    bottomLeft(): Square | undefined
     {
         return this.left()?.below();
     }
