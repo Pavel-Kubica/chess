@@ -53,7 +53,7 @@ export class King extends Piece
         moveBase.piece = new King();
         moveBase.from = from;
 
-        let reachable = this.reachableExistentSquares(from);
+        let reachable = King.reachableExistentSquares(from);
         let retArr: BoardMove[] = reachable.filter(square => !board.at(square)) // No piece at target square
                                     .map( (square): BoardMove => {return {to: square, ...moveBase}} )
 
@@ -69,10 +69,10 @@ export class King extends Piece
             retArr.push({to: from.right()!.right()!, castle: Castles.LONG, ...moveBase})
         }
 
-        return retArr.filter(move => !board.moveExposesKing(move))
+        return retArr.filter(move => !board.moveExposesKing(move));
     }
 
-    reachableExistentSquares(from: Square): Square[]
+    private static reachableExistentSquares(from: Square): Square[]
     {
         return [from.above(), from.below(), from.right(), from.left(),
             from.topRight(), from.topLeft(), from.bottomRight(), from.bottomLeft()].filter(Boolean) as Square[]
@@ -88,7 +88,7 @@ export class Pawn extends Piece
         let moveBase: BoardMove = new BoardMove();
         moveBase.piece = new Pawn();
         moveBase.from = from;
-        let [aheadSquare, doubleMoveSquare, leftCaptureSquare, rightCaptureSquare] = this.reachableSquares(from, color);
+        let [aheadSquare, doubleMoveSquare, leftCaptureSquare, rightCaptureSquare] = Pawn.reachableSquares(from, color);
 
         // Moves
         if (!board.at(aheadSquare!)) // Pawn can't be on last rank
@@ -128,13 +128,13 @@ export class Pawn extends Piece
                 retArr.push({to: rightCaptureSquare, captures: true, ...moveBase})
             }
         }
-        return retArr;
+        return retArr.filter(move => !board.moveExposesKing(move))
     }
 
     /**
-     * @returns [BoardMove base, square ahead, doublemove target square, left capture square, right capture square]
+     * @returns [square ahead, doublemove target square, left capture square, right capture square]
      */
-    reachableSquares(from: Square, color: Color): [Square | null, Square | null | undefined, Square | null | undefined, Square | null | undefined]
+    private static reachableSquares(from: Square, color: Color): [Square | null, Square | null | undefined, Square | null | undefined, Square | null | undefined]
     {
         if (color === Color.WHITE)
         {
@@ -153,7 +153,7 @@ export class Queen extends Piece
     {
 
     }
-    reachableExistentSquares(from: Square): Square[]
+    private static reachableExistentSquares(from: Square): Square[]
     {
         return from.allOnSameDiagonals().concat(from.allOnSameRank()).concat(from.allOnSameFile());
     }
@@ -166,7 +166,7 @@ export class Bishop extends Piece
 
     }
 
-    reachableExistentSquares(from: Square): Square[]
+    private static reachableExistentSquares(from: Square): Square[]
     {
         return from.allOnSameDiagonals();
     }
@@ -178,7 +178,7 @@ export class Knight extends Piece
 
     }
 
-    reachableExistentSquares(from: Square): Square[]
+    private static reachableExistentSquares(from: Square): Square[]
     {
         return [from.above()?.above()?.left(), from.above()?.above()?.right(),
                 from.below()?.below()?.left(), from.below()?.below()?.right(),
@@ -192,7 +192,7 @@ export class Rook extends Piece
     {
 
     }
-    reachableExistentSquares(from: Square): Square[]
+    private static reachableExistentSquares(from: Square): Square[]
     {
         return from.allOnSameRank().concat(from.allOnSameFile());
     }
