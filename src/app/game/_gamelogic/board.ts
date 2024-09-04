@@ -8,6 +8,11 @@ export default class Board
 {
     private pieces: Map<Square, ColoredPiece>
 
+    constructor()
+    {
+        this.pieces = new Map<Square, ColoredPiece>;
+    }
+
 
     at(square: Square): ColoredPiece | undefined
     {
@@ -23,15 +28,9 @@ export default class Board
     {
 
     }
-
-    // Simplifies using this functionality for filtering arrays
-    moveDoesntExposeKing(move: BoardMove): boolean
-    {
-        return !this.moveExposesKing(move);
-    }
     moveExposesKing(move: BoardMove): boolean
     {
-
+        return false;
     }
     enPassantPossibleFrom(square: Square): boolean
     {
