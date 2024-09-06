@@ -51,13 +51,13 @@ export class King extends Piece
     {
         let retArr: BoardMove[] = [];
         let reachable = King.reachableExistentSquares(from);
-        retArr = retArr.concat(King.getPossibleSimpleMoves(from, color, board, reachable))
+        retArr = retArr.concat(King.getPossibleSimpleMoves(from, board, reachable))
         retArr = retArr.concat(King.getPossibleCaptures(from, color, board, reachable))
         retArr = retArr.concat(King.getPossibleCastles(from, color, board))
         return retArr;
     }
 
-    private static getPossibleSimpleMoves(from: Square, color: Color, board: Board, reachable: Square[]): BoardMove[]
+    private static getPossibleSimpleMoves(from: Square, board: Board, reachable: Square[]): BoardMove[]
     {
         return reachable.filter(square => !board.at(square)) // No piece at target square
                         .map(square=> new BoardMove(from, square))
