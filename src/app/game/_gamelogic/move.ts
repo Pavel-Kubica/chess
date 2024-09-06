@@ -1,7 +1,13 @@
 import Square from "@/app/game/_gamelogic/square";
 import {Piece} from "@/app/game/_gamelogic/piece";
-import {Color} from "@/app/game/_gamelogic/color";
-import {Castles} from "@/app/game/_gamelogic/castles";
+import {
+    Castles,
+    LONG_CSTL_ROOK_SRC_FILE,
+    LONG_CSTL_ROOK_TARGET_FILE,
+    SHORT_CSTL_ROOK_SRC_FILE,
+    SHORT_CSTL_ROOK_TARGET_FILE
+} from "@/app/game/_gamelogic/castles";
+import Board from "@/app/game/_gamelogic/board";
 
 
 // An instance of this class existing ensures that such a move exists and is possible on the board it was made with.
@@ -21,6 +27,44 @@ export class BoardMove
     to: Square;
     captures: boolean = false;
     castle: Castles | undefined = undefined
+
+    execute(board: Board)
+    {
+        if (this.castle)
+        {
+            this.executeCastle(board);
+            return;
+        }
+        if (this.captures)
+        {
+            if (!board.removeAt(this.to))
+            { // No piece to remove at capture target => en passant
+                board.removeAt(new Square(this.to.file, this.from.rank));
+            }
+        }
+        board.placeAt(this.to, board.at(this.from)!);
+        board.removeAt(this.from);
+    }
+    private executeCastle(board: Board)
+    {
+        const baseRank = this.from.rank;
+        let rookSrcSquare: Square;
+        let rookTargetSquare: Square;
+        if (this.castle === Castles.SHORT)
+        {
+            rookSrcSquare = new Square(SHORT_CSTL_ROOK_SRC_FILE, baseRank);
+            rookTargetSquare = new Square(SHORT_CSTL_ROOK_TARGET_FILE, baseRank);
+        }
+        else
+        {
+            rookSrcSquare = new Square(LONG_CSTL_ROOK_SRC_FILE, baseRank);
+            rookTargetSquare = new Square(LONG_CSTL_ROOK_TARGET_FILE, baseRank);
+        }
+        board.placeAt(this.to, board.at(this.from)!);
+        board.placeAt(rookTargetSquare, board.at(rookSrcSquare)!);
+        board.removeAt(this.from);
+        board.removeAt(rookSrcSquare);
+    }
 }
 
 export class Move
