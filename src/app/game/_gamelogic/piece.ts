@@ -34,40 +34,6 @@ export abstract class Piece
     }
 }
 
-abstract class StraightLineMovingPiece extends Piece
-{
-    abstract getDirectionAdvancingFunctions(): ((square: Square) => Square | undefined)[]
-
-    possibleMoves(from: Square, color: Color, board: Board): BoardMove[]
-    {
-        let retArr: BoardMove[] = [];
-
-        for (const advancedInDirection of this.getDirectionAdvancingFunctions())
-        {
-            let curr: Square | undefined = advancedInDirection(from);
-            // Build a path in the current direction, storing moves along the way
-            while (curr)
-            {
-                if (board.at(curr))
-                { // Encountered a piece
-                    if (board.at(curr)!.color !== color)
-                    { // Piece is of other color, can capture there
-                        retArr.push(new BoardMove(from, curr, true))
-                    }
-                    // In any case cannot move that way any further
-                    break;
-                }
-
-                retArr.push(new BoardMove(from, curr))
-                curr = advancedInDirection(curr)
-            }
-        }
-
-        return retArr
-    }
-
-}
-
 export class ColoredPiece
 {
     constructor(piece: Piece, color: Color)
@@ -190,6 +156,65 @@ export class Pawn extends Piece
         }
     }
 }
+
+export class Knight extends Piece
+{
+    possibleMoves(from: Square, color: Color, board: Board): BoardMove[]
+    {
+        let retArr: BoardMove[] = [];
+        let reachable = Knight.reachableExistentSquares(from);
+        retArr = retArr.concat(reachable.filter(square => !board.at(square)) // Moves
+            .map(square => new BoardMove(from, square)))
+
+        retArr = retArr.concat(reachable.filter(square => board.at(square)?.color !== color) // Captures
+            .map(square => new BoardMove(from, square, true)))
+
+        return retArr;
+    }
+
+    private static reachableExistentSquares(from: Square): Square[]
+    {
+        return [from.above()?.above()?.left(), from.above()?.above()?.right(),
+            from.below()?.below()?.left(), from.below()?.below()?.right(),
+            from.right()?.right()?.above(), from.right()?.right()?.below(),
+            from.left()?.left()?.above(), from.left()?.left()?.below()].filter(Boolean) as Square[]
+    }
+}
+
+abstract class StraightLineMovingPiece extends Piece
+{
+    abstract getDirectionAdvancingFunctions(): ((square: Square) => Square | undefined)[]
+
+    possibleMoves(from: Square, color: Color, board: Board): BoardMove[]
+    {
+        let retArr: BoardMove[] = [];
+
+        for (const advancedInDirection of this.getDirectionAdvancingFunctions())
+        {
+            let curr: Square | undefined = advancedInDirection(from);
+            // Build a path in the current direction, storing moves along the way
+            while (curr)
+            {
+                if (board.at(curr))
+                { // Encountered a piece
+                    if (board.at(curr)!.color !== color)
+                    { // Piece is of other color, can capture there
+                        retArr.push(new BoardMove(from, curr, true))
+                    }
+                    // In any case cannot move that way any further
+                    break;
+                }
+
+                retArr.push(new BoardMove(from, curr))
+                curr = advancedInDirection(curr)
+            }
+        }
+
+        return retArr
+    }
+
+}
+
 export class Queen extends StraightLineMovingPiece
 {
     getDirectionAdvancingFunctions(): ((square: Square) => (Square | undefined))[]
@@ -218,29 +243,7 @@ export class Bishop extends StraightLineMovingPiece
         ];
     }
 }
-export class Knight extends Piece
-{
-    possibleMoves(from: Square, color: Color, board: Board): BoardMove[]
-    {
-        let retArr: BoardMove[] = [];
-        let reachable = Knight.reachableExistentSquares(from);
-        retArr = retArr.concat(reachable.filter(square => !board.at(square)) // Moves
-                        .map(square => new BoardMove(from, square)))
 
-        retArr = retArr.concat(reachable.filter(square => board.at(square)?.color !== color) // Captures
-                        .map(square => new BoardMove(from, square, true)))
-
-        return retArr;
-    }
-
-    private static reachableExistentSquares(from: Square): Square[]
-    {
-        return [from.above()?.above()?.left(), from.above()?.above()?.right(),
-                from.below()?.below()?.left(), from.below()?.below()?.right(),
-                from.right()?.right()?.above(), from.right()?.right()?.below(),
-                from.left()?.left()?.above(), from.left()?.left()?.below()].filter(Boolean) as Square[]
-    }
-}
 export class Rook extends StraightLineMovingPiece
 {
     getDirectionAdvancingFunctions(): ((square: Square) => (Square | undefined))[]
