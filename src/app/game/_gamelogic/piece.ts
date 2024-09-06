@@ -7,7 +7,7 @@ import {Castles} from "@/app/game/_gamelogic/castles";
 
 export abstract class Piece
 {
-    abstract possibleMoves(from: Square, color: Color, board: Board): BoardMove[];
+    abstract unobstructedMoves(from: Square, color: Color, board: Board): BoardMove[];
     static fromString(s: string): Piece | null
     {
         if (s.length > 1)
@@ -47,7 +47,7 @@ export class ColoredPiece
 
 export class King extends Piece
 {
-    possibleMoves(from: Square, color: Color, board: Board): BoardMove[]
+    unobstructedMoves(from: Square, color: Color, board: Board): BoardMove[]
     {
         let retArr: BoardMove[] = [];
         let reachable = King.reachableExistentSquares(from);
@@ -99,7 +99,7 @@ export class King extends Piece
 export class Pawn extends Piece
 {
     // Promotions to be handled by Board
-    possibleMoves(from: Square, color: Color, board: Board): BoardMove[]
+    unobstructedMoves(from: Square, color: Color, board: Board): BoardMove[]
     {
         let retArr: BoardMove[] = [];
         retArr = retArr.concat(Pawn.getPossibleSimpleMoves(from, color, board));
@@ -186,7 +186,7 @@ export class Pawn extends Piece
 
 export class Knight extends Piece
 {
-    possibleMoves(from: Square, color: Color, board: Board): BoardMove[]
+    unobstructedMoves(from: Square, color: Color, board: Board): BoardMove[]
     {
         let retArr: BoardMove[] = [];
         let reachable = Knight.reachableExistentSquares(from);
@@ -212,7 +212,7 @@ abstract class StraightLineMovingPiece extends Piece
 {
     abstract getDirectionAdvancingFunctions(): ((square: Square) => Square | undefined)[]
 
-    possibleMoves(from: Square, color: Color, board: Board): BoardMove[]
+    unobstructedMoves(from: Square, color: Color, board: Board): BoardMove[]
     {
         let retArr: BoardMove[] = [];
 
