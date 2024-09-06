@@ -1,6 +1,6 @@
 import Square from "@/app/game/_gamelogic/square";
 import Board from "@/app/game/_gamelogic/board";
-import {Color, doublePawnMoveRank} from "@/app/game/_gamelogic/color";
+import {baseRank, Color, doublePawnMoveRank, enPassantRank} from "@/app/game/_gamelogic/color";
 import {BoardMove} from "@/app/game/_gamelogic/move";
 import {Castles} from "@/app/game/_gamelogic/castles";
 
@@ -63,7 +63,7 @@ abstract class StraightLineMovingPiece extends Piece
             }
         }
 
-        return retArr.filter(move => !board.moveExposesKing(move))
+        return retArr
     }
 
 }
@@ -84,22 +84,33 @@ export class King extends Piece
     possibleMoves(from: Square, color: Color, board: Board): BoardMove[]
     {
         let reachable = King.reachableExistentSquares(from);
+
+        // Moves
         let retArr: BoardMove[] = reachable.filter(square => !board.at(square)) // No piece at target square
                                     .map(square=> new BoardMove(from, square) )
 
+        // Captures
         retArr = retArr.concat(reachable.filter(square => board.at(square)?.color !== color) // Piece of other color on target square -> can capture
                                     .map(square=> new BoardMove(from, square, true) ))
 
-        if (board.castlesPossible(color, Castles.SHORT))
+        // Castles
+        const castleRank = baseRank(color);
+        if (JSON.stringify(from) === JSON.stringify(new Square("e", castleRank))) // King is at his starting spot
         {
-            retArr.push(new BoardMove(from, from.left()!.left()!, false, Castles.SHORT))
-        }
-        if (board.castlesPossible(color, Castles.LONG))
-        {
-            retArr.push(new BoardMove(from, from.left()!.left()!, false, Castles.LONG))
+            if (JSON.stringify(board.at(new Square("h", castleRank))?.piece) === JSON.stringify(new Rook()) && // h file Rook is at its starting spot
+                !board.at(new Square("f", castleRank))! && !board.at(new Square("g", castleRank))) // AND the path is not obstructed
+            {
+                retArr.push(new BoardMove(from, from.right()!.right()!, false, Castles.SHORT))
+            }
+
+            if (JSON.stringify(board.at(new Square("a", castleRank))?.piece) === JSON.stringify(new Rook()) && // a file Rook is at its starting spot
+                !board.at(new Square("b", castleRank))! && !board.at(new Square("c", castleRank)) && !board.at(new Square("d", castleRank))) // AND the path is not obstructed
+            {
+                retArr.push(new BoardMove(from, from.left()!.left()!, false, Castles.LONG))
+            }
         }
 
-        return retArr.filter(move => !board.moveExposesKing(move))
+        return retArr;
     }
 
     private static reachableExistentSquares(from: Square): Square[]
@@ -133,8 +144,9 @@ export class Pawn extends Piece
         {
             leftCaptureSquare = leftCaptureSquare!
             if (
-                // En passant possible AND the capturable pawn is to the correct side
-                (board.enPassantPossibleFrom(from) &&
+                // En passant could be possible to the left
+                (from.rank === enPassantRank(color) &&
+                !board.at(leftCaptureSquare) &&
                 board.at(from.left()!))
                 ||
                 // Or there is simply an opponent's piece on the left capture square
@@ -148,8 +160,10 @@ export class Pawn extends Piece
         {
             rightCaptureSquare = rightCaptureSquare!
             if (
-                // En passant possible AND the capturable pawn is to the correct side
-                (board.enPassantPossibleFrom(from) && board.at(from.right()!))
+                // En passant could be possible to the right
+                (from.rank === enPassantRank(color) &&
+                !board.at(rightCaptureSquare) &&
+                board.at(from.right()!))
                 ||
                 // Or there is simply an opponent's piece on the right capture square
                 (board.at(rightCaptureSquare)?.color !== color)
@@ -158,7 +172,7 @@ export class Pawn extends Piece
                 retArr.push(new BoardMove(from, rightCaptureSquare, true))
             }
         }
-        return retArr.filter(move => !board.moveExposesKing(move))
+        return retArr;
     }
 
     /**
@@ -216,7 +230,7 @@ export class Knight extends Piece
         retArr = retArr.concat(reachable.filter(square => board.at(square)?.color !== color) // Captures
                         .map(square => new BoardMove(from, square, true)))
 
-        return retArr.filter(move => !board.moveExposesKing(move))
+        return retArr;
     }
 
     private static reachableExistentSquares(from: Square): Square[]

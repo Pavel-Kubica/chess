@@ -1,8 +1,5 @@
-import {ColoredPiece, Piece} from "@/app/game/_gamelogic/piece";
+import {ColoredPiece} from "@/app/game/_gamelogic/piece";
 import Square from "@/app/game/_gamelogic/square";
-import {Color} from "@/app/game/_gamelogic/color";
-import {BoardMove, Move} from "@/app/game/_gamelogic/move";
-import {Castles} from "@/app/game/_gamelogic/castles";
 
 export default class Board
 {
@@ -13,41 +10,27 @@ export default class Board
         this.pieces = new Map<Square, ColoredPiece>;
     }
 
-
     at(square: Square): ColoredPiece | undefined
     {
         return this.pieces.get(square)
     }
 
-    getAvailableMovesFrom(square: Square): BoardMove[]
+    /**
+     * @returns false if square is occupied, true otherwise
+     */
+    place(square: Square, piece: ColoredPiece): boolean
     {
-
+        if (this.pieces.get(square)) return false;
+        this.pieces.set(square, piece);
+        return true;
     }
 
-    doMove(move: BoardMove): void
+    /**
+     * @returns false if square is empty, true otherwise
+     */
+    remove(square: Square): boolean
     {
-
-    }
-    moveExposesKing(move: BoardMove): boolean
-    {
-        return false;
-    }
-    enPassantPossibleFrom(square: Square): boolean
-    {
-
-    }
-    castlesPossible(color: Color, shortCastle: Castles): boolean
-    {
-
-    }
-    setCheckOrMateOfMove(move: BoardMove): void
-    {
-
+        return this.pieces.delete(square);
     }
 
-
-    private validateMove(move: Move): BoardMove | null
-    {
-
-    }
 }
