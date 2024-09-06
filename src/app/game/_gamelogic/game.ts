@@ -8,6 +8,9 @@ import {BoardMove} from "@/app/game/_gamelogic/move";
 export default class Game
 {
     private board: Board
+    // Target square of castle uniquely identifies it
+    // To be used as possibleCastles.get(move.to)
+    private possibleCastles: Map<Square, boolean>
     initializeWithDefaults()
     {
         this.board.place(Square.fromString("a1")!, new ColoredPiece(new Rook(), Color.WHITE))
@@ -43,6 +46,11 @@ export default class Game
         this.board.place(Square.fromString("f7")!, new ColoredPiece(new Pawn(), Color.BLACK))
         this.board.place(Square.fromString("g7")!, new ColoredPiece(new Pawn(), Color.BLACK))
         this.board.place(Square.fromString("h7")!, new ColoredPiece(new Pawn(), Color.BLACK))
+
+        this.possibleCastles.set(Square.fromString("c1")!, false);
+        this.possibleCastles.set(Square.fromString("g1")!, false);
+        this.possibleCastles.set(Square.fromString("c8")!, false);
+        this.possibleCastles.set(Square.fromString("g8")!, false);
     }
     getAvailableMovesFrom(square: Square): BoardMove[]
     {
@@ -54,7 +62,10 @@ export default class Game
 
     private isLegal(move: BoardMove): boolean
     {
-
+        if (move.castle)
+        {
+            if (!this.possibleCastles.get(move.to)) return false;
+        }
     }
 
 }
