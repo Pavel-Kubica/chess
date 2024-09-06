@@ -18,7 +18,7 @@ export default class Board
     /**
      * @returns false if square is occupied, true otherwise
      */
-    place(square: Square, piece: ColoredPiece): boolean
+    placeAt(square: Square, piece: ColoredPiece): boolean
     {
         if (this.pieces.get(square)) return false;
         this.pieces.set(square, piece);
@@ -28,9 +28,12 @@ export default class Board
     /**
      * @returns false if square is empty, true otherwise
      */
-    remove(square: Square): boolean
+    removeAt(square: Square): boolean
     {
         return this.pieces.delete(square);
     }
-
+    replaceAt(square: Square, piece: ColoredPiece): boolean
+    {
+        return this.removeAt(square) && this.placeAt(square, piece);
+    }
 }
