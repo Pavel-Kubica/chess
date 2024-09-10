@@ -1,7 +1,7 @@
 import Board from "@/app/game/_gamelogic/board";
 import Square from "@/app/game/_gamelogic/square";
 import {Bishop, ColoredPiece, King, Knight, Pawn, Queen, Rook} from "@/app/game/_gamelogic/piece";
-import {Color} from "@/app/game/_gamelogic/color";
+import {Color, otherColor} from "@/app/game/_gamelogic/color";
 import {BoardMove} from "@/app/game/_gamelogic/move";
 
 
@@ -10,14 +10,27 @@ export default class Game
     private board: Board
     // Target square of castle uniquely identifies it
     // To be used as possibleCastles.get(move.to)
-    private possibleCastles: Map<Square, boolean>
+    private possibleCastles: Map<Square, boolean>;
+    private kingSquares: Map<Color, Square>;
+    private lastMove: BoardMove | undefined;
+    private onTurn: Color;
+
+    constructor()
+    {
+        this.board = new Board();
+        this.possibleCastles = new Map<Square, boolean>;
+        this.kingSquares = new Map<Color, Square>;
+        this.lastMove = undefined;
+    }
     initializeWithDefaults()
     {
+
         this.board.placeAt(Square.fromString("a1")!, new ColoredPiece(new Rook(), Color.WHITE))
         this.board.placeAt(Square.fromString("b1")!, new ColoredPiece(new Knight(), Color.WHITE))
         this.board.placeAt(Square.fromString("c1")!, new ColoredPiece(new Bishop(), Color.WHITE))
         this.board.placeAt(Square.fromString("d1")!, new ColoredPiece(new Queen(), Color.WHITE))
         this.board.placeAt(Square.fromString("e1")!, new ColoredPiece(new King(), Color.WHITE))
+        this.kingSquares.set(Color.WHITE, Square.fromString("e1")!);
         this.board.placeAt(Square.fromString("f1")!, new ColoredPiece(new Bishop(), Color.WHITE))
         this.board.placeAt(Square.fromString("g1")!, new ColoredPiece(new Knight(), Color.WHITE))
         this.board.placeAt(Square.fromString("h1")!, new ColoredPiece(new Rook(), Color.WHITE))
@@ -35,6 +48,7 @@ export default class Game
         this.board.placeAt(Square.fromString("c8")!, new ColoredPiece(new Bishop(), Color.BLACK))
         this.board.placeAt(Square.fromString("d8")!, new ColoredPiece(new Queen(), Color.BLACK))
         this.board.placeAt(Square.fromString("e8")!, new ColoredPiece(new King(), Color.BLACK))
+        this.kingSquares.set(Color.BLACK, Square.fromString("e8")!);
         this.board.placeAt(Square.fromString("f8")!, new ColoredPiece(new Bishop(), Color.BLACK))
         this.board.placeAt(Square.fromString("g8")!, new ColoredPiece(new Knight(), Color.BLACK))
         this.board.placeAt(Square.fromString("h8")!, new ColoredPiece(new Rook(), Color.BLACK))
@@ -51,6 +65,8 @@ export default class Game
         this.possibleCastles.set(Square.fromString("g1")!, false);
         this.possibleCastles.set(Square.fromString("c8")!, false);
         this.possibleCastles.set(Square.fromString("g8")!, false);
+
+        this.onTurn = Color.WHITE;
     }
     getAvailableMovesFrom(square: Square): BoardMove[]
     {
@@ -62,10 +78,38 @@ export default class Game
 
     private isLegal(move: BoardMove): boolean
     {
-        if (move.castle)
+        if (move.captures && !this.board.at(move.to)) // Captures yet no piece at target square => en passant
+        {
+            if (!this.enPassantMovePossible(move)) return false;
+        }
+        else if (move.castle)
         {
             if (!this.possibleCastles.get(move.to)) return false;
         }
+
+        return !this.moveExposesKing(move);
     }
+
+    // Move is a guaranteed en passant move (captures but no piece on target square)
+    private enPassantMovePossible(move: BoardMove): boolean
+    {
+        return (
+            this.lastMove !== undefined && // There must be a previous move to en passant
+            this.board.at(this.lastMove!.to)!.piece instanceof Pawn && // AND the last move must be a pawn move
+            Math.abs((move.from.rank) - (move.to.rank)) == 2 && // AND the last move must have moved by 2 squares
+            this.lastMove.to.file == move.to.file // AND the last move must be on the same file that this capture is targeting
+        )
+        // Pawn.unobstructedMoves() already checks to make sure move.from is on the correct rank
+
+    }
+
+    private moveExposesKing(move: BoardMove): boolean
+    {
+        let boardAfterMove = this.board.clone();
+        const kingSquareAfterMove: Square = this.board.at(move.from)!.piece instanceof King ? move.to : this.kingSquares.get(this.onTurn)!
+        move.execute(boardAfterMove);
+        return boardAfterMove.squareUnderAttackByColor(kingSquareAfterMove, otherColor(this.onTurn));
+    }
+
 
 }

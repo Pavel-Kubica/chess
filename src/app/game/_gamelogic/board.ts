@@ -1,5 +1,7 @@
 import {ColoredPiece} from "@/app/game/_gamelogic/piece";
 import Square from "@/app/game/_gamelogic/square";
+import {Property} from "csstype";
+import Color = Property.Color;
 
 export default class Board
 {
@@ -8,6 +10,16 @@ export default class Board
     constructor()
     {
         this.pieces = new Map<Square, ColoredPiece>;
+    }
+
+    clone(): Board
+    {
+        let newBoard = new Board();
+        for (const [square, piece] of this.pieces)
+        {
+            newBoard.placeAt(square, piece);
+        }
+        return newBoard;
     }
 
     at(square: Square): ColoredPiece | undefined
@@ -35,5 +47,10 @@ export default class Board
     replaceAt(square: Square, piece: ColoredPiece): boolean
     {
         return this.removeAt(square) && this.placeAt(square, piece);
+    }
+
+    squareUnderAttackByColor(square: Square, opponentColor: Color): boolean
+    {
+
     }
 }
