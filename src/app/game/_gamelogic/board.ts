@@ -1,11 +1,9 @@
 import {ColoredPiece} from "@/app/game/_gamelogic/piece";
 import Square from "@/app/game/_gamelogic/square";
-import {Property} from "csstype";
-import Color = Property.Color;
 
 export default class Board
 {
-    private pieces: Map<Square, ColoredPiece>
+    pieces: Map<Square, ColoredPiece>
 
     constructor()
     {
@@ -47,10 +45,5 @@ export default class Board
     replaceAt(square: Square, piece: ColoredPiece): boolean
     {
         return this.removeAt(square) && this.placeAt(square, piece);
-    }
-
-    squareUnderAttackByColor(square: Square, opponentColor: Color): boolean
-    {
-
     }
 }

@@ -107,9 +107,18 @@ export default class Game
     {
         let boardAfterMove = this.board.clone();
         const kingSquareAfterMove: Square = this.board.at(move.from)!.piece instanceof King ? move.to : this.kingSquares.get(this.onTurn)!
-        move.execute(boardAfterMove);
-        return boardAfterMove.squareUnderAttackByColor(kingSquareAfterMove, otherColor(this.onTurn));
+        move.execute(boardAfterMove); // Get a new board which will represent the state after move was executed
+        for (const [square, coloredPiece] of boardAfterMove.pieces)
+        {
+            if (coloredPiece.color === otherColor(this.onTurn))
+            { // If any piece of the opponent's color is unobstructed to move to the new king square after the move, then this move exposes the king
+                const moves: BoardMove[] = coloredPiece.piece.unobstructedMoves(square, coloredPiece.color, boardAfterMove);
+                if (moves.map((move: BoardMove): Square => move.to).includes(kingSquareAfterMove))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
-
-
 }
